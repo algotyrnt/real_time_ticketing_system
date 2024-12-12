@@ -18,20 +18,21 @@ public class Main {
         System.out.println("Enter Max Ticket Capacity");
         int maxTicketCapacity = scanner.nextInt();
 
-        SystemConfig systemConfig = new SystemConfig(totalTickets, releaseRate, customerRetrievalRate, maxTicketCapacity);
 
-        while(true){
-            System.out.println("Commands: Start (initiate system), Stop (stop system)");
-            String command = scanner.next();
+        TicketPool ticketPool = new TicketPool(maxTicketCapacity);
 
-            if(command.equalsIgnoreCase("Start")){
-                systemConfig.start();
-            } else if(command.equalsIgnoreCase("Stop")){
-                systemConfig.stop();
-                break;
-            } else {
-                System.out.println("Invalid Command");
-            }
+        Vendor[] vendors = new Vendor[10]; // Creating array of vendors
+        for (int i = 0; i < vendors.length; i++) {
+            vendors[i] = new Vendor("vendor" + i, totalTickets, releaseRate,ticketPool);
+            Thread vendorThread = new Thread(vendors[i], "Vendor ID-" + i);
+            vendorThread.start();
+        }
+
+        Customer[] customers = new Customer[10]; // Creating array of customers
+        for (int i = 0; i < customers.length; i++) {
+            customers[i] = new Customer("Customer" + i,ticketPool, customerRetrievalRate); // Rerieve tickets from the pool
+            Thread customerThread = new Thread(customers[i], "Customer ID-" + i);
+            customerThread.start();
         }
 
         scanner.close();
